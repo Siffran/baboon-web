@@ -17,14 +17,10 @@ Activate venv
 .\venv\Scripts\activate
 ```
 
-Install flask
+Install flask and dotenv (remembers environment variables across sessions)
 ```
 pip install flask
-```
-
-Set FLASK_APP variable
-```
-set FLASK_APP=baboon_web.py
+pip install python-dotenv
 ```
 
 Run the app
