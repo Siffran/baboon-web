@@ -17,10 +17,15 @@ Activate venv
 .\venv\Scripts\activate
 ```
 
-Install flask and dotenv (remembers environment variables across sessions)
+Install flask and some other stuff...
 ```
 pip install flask
+
+# Remembers environment variables across sessions
 pip install python-dotenv
+
+# HTTP client written in Python that makes it easy to send API requests
+pip install httpie
 ```
 
 Run the app
@@ -29,5 +34,17 @@ flask run
 ```
 
 # Setup - Linux
+Basically the same as for Windows
+
+# Testing
+Run unit tests (TODO)
+```
+pytest
+```
+
+Test API endpoints manually
+```
+http GET http://localhost:5000/api/raids
+```
 
 # Package
