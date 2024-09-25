@@ -39,6 +39,9 @@ pip install flask-migrate
 # init database
 flask db init
 
+# do database migration
+flask db migrate
+
 ```
 
 Run the app

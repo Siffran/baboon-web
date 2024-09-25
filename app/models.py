@@ -56,7 +56,7 @@ class Raid(db.Model):
     __tablename__ = 'raid'
 
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
-    discord_id: so.Mapped[str] = so.mapped_column(sa.String, nullable=False)
+    discord_id: so.Mapped[str] = so.mapped_column(sa.String, index=True, unique=True, nullable=False)
     type: so.Mapped[str] = so.mapped_column(sa.Enum('chill', 'mythic', name='raid_types'), nullable=False)
     
     # Relationship to RaidPlayer (many-to-many through RaidPlayer)
