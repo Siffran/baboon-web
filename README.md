@@ -7,6 +7,8 @@ Inspired by Miguel Grindbergs Blog: https://blog.miguelgrinberg.com/post/the-fla
 - Python >= 3.12.6
 
 # Setup - Windows
+
+## Dev environment
 Create a venv
 ```
 python -m venv venv
@@ -16,33 +18,45 @@ Activate venv
 ```
 .\venv\Scripts\activate
 ```
-
+## Required packages
 Install flask and some other stuff...
 ```
 pip install flask
 
+# Flask extension used for Forms
+pip install flask-wtf
+```
+
+## Dev packages
+```
 # Remembers environment variables across sessions
 pip install python-dotenv
 
 # HTTP client written in Python that makes it easy to send API requests
 pip install httpie
 
-# Flask extension used for Forms
-pip install flask-wtf
-
 # Flask extension that allow us to handle db entries as objects
 pip install flask-sqlalchemy
 
 # Flask extension for db migration
 pip install flask-migrate
+```
 
+## Database commands
+
+```
 # init database
 flask db init
 
-# do database migration
+# add database migration
 flask db migrate
 
+# upgrade database with migration
+flask db upgrade
 ```
+
+## Run appliaction
+
 
 Run the app
 ```
