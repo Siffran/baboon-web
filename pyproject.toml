@@ -1,0 +1,11 @@
+[project]
+name = "BaboonWeb"
+requires-python = ">= 3.12"
+version = "0.1"
+
+dependencies = ["flask>=3.0.3"]
+
+[tool.rye]
+dev-dependencies = [
+    "pytest>=8.3.3",
+]
