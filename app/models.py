@@ -1,10 +1,15 @@
-from typing import Optional
 import sqlalchemy as sa
 import sqlalchemy.orm as so
-from app import db
+
+from typing import Optional
 from datetime import datetime, timezone
 
-class User(db.Model):
+from flask_login import UserMixin
+from werkzeug.security import generate_password_hash, check_password_hash
+
+from app import login, db
+
+class User(UserMixin, db.Model):
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
     username: so.Mapped[str] = so.mapped_column(sa.String(64), index=True,
                                                 unique=True)
@@ -12,8 +17,18 @@ class User(db.Model):
                                              unique=True)
     password_hash: so.Mapped[Optional[str]] = so.mapped_column(sa.String(256))
 
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
+
     def __repr__(self):
         return '<User {}>'.format(self.username)
+    
+@login.user_loader
+def load_user(id):
+    return db.session.get(User, int(id))
 
 # A Player model
 class Player(db.Model):
@@ -45,7 +60,10 @@ class RaidPlayer(db.Model):
     joined_at: so.Mapped[datetime] = so.mapped_column(sa.DateTime, default=datetime.now(timezone.utc), nullable=False)
     
     # Relationship with the Player model
-    player: so.Mapped['Player'] = so.relationship('Player')
+    player: so.Mapped['Player'] = so.relationship('Player', back_populates='raids')
+
+    # Relationship with the Raid model (missing part added)
+    raid: so.Mapped['Raid'] = so.relationship('Raid', back_populates='players')
     
     def __repr__(self):
         return f'<Raider {self.player.name} as {self.role}>'

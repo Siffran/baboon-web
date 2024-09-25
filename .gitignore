@@ -166,3 +166,6 @@ migrations
 
 # Temporarily ignore app.db
 app.db
+
+# Temporarily ignore logs foler
+logs

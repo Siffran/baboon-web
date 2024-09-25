@@ -25,6 +25,9 @@ pip install flask
 
 # Flask extension used for Forms
 pip install flask-wtf
+
+# Flask extension used for login
+pip install flask-login
 ```
 
 ## Dev packages
@@ -78,3 +81,14 @@ http GET http://localhost:5000/api/raids
 ```
 
 # Package
+
+# Misc
+Add new user
+```
+flask shell
+
+>>> u = User(username='susan', email='susan@example.com')
+>>> u.set_password('cat')
+>>> db.session.add(u)
+>>> db.session.commit()
+```
