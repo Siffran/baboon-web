@@ -26,11 +26,24 @@ pip install python-dotenv
 
 # HTTP client written in Python that makes it easy to send API requests
 pip install httpie
+
+# Flask extension used for Forms
+pip install flask-wtf
+
+# Flask extension that allow us to handle db entries as objects
+pip install flask-sqlalchemy
+
+# Flask extension for db migration
+pip install flask-migrate
+
+# init database
+flask db init
+
 ```
 
 Run the app
 ```
-flask run
+flask --debug run
 ```
 
 # Setup - Linux
