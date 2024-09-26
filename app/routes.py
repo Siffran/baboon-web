@@ -37,30 +37,78 @@ def logout():
     logout_user()
     return redirect(url_for('index'))
 
-
+# Debug view for adding stuff to the database
 @app.route('/debug')
 def debug():
-
     users = db.session.scalars(sa.select(User)).all()
-    for user in users:
-        print(vars(user))
-
     players = db.session.scalars(sa.select(Player)).all()
-    for player in players:
-        print(vars(player))
-
     raids = db.session.scalars(sa.select(Raid)).all()
-    for raid in raids:
-        print(vars(raid))
-
     raid_players = db.session.scalars(sa.select(RaidPlayer)).all()
-    for raid_player in raid_players:
-        print(vars(raid_player))
-    
-    return render_template('debug.html')
 
+    return render_template("debug.html", 
+                           users=users,
+                           players=players,
+                           raids=raids,
+                           raid_players=raid_players)
 
+# Route to add a new user
+@app.route('/debug/add_user', methods=['GET', 'POST'])
+def add_user():
+    if request.method == 'POST':
+        username = request.form['username']
+        email = request.form['email']
+        # Add the user to the database
+        new_user = User(username=username, email=email)
+        db.session.add(new_user)
+        db.session.commit()
+        flash('User added successfully!')
+        return redirect(url_for('debug'))
+
+# Route to add a new player
+@app.route('/debug/add_player', methods=['GET', 'POST'])
+def add_player():
+    if request.method == 'POST':
+        name = request.form['name']
+        bp = request.form['bp']
+        trial = request.form.get('trial') == 'on'
+        core = request.form.get('core') == 'on'
+        # Add the player to the database
+        new_player = Player(name=name, bp=bp, trial=trial, core=core)
+        db.session.add(new_player)
+        db.session.commit()
+        flash('Player added successfully!')
+        return redirect(url_for('debug'))
     
+# Route to add a new raid
+@app.route('/debug/add_raid', methods=['GET', 'POST'])
+def add_raid():
+    if request.method == 'POST':
+        discord_id = request.form['discord_id']
+        type = request.form['type']
+        # Add the raid to the database
+        new_raid = Raid(discord_id=discord_id, type=type)
+        db.session.add(new_raid)
+        db.session.commit()
+        flash('Raid added successfully!')
+        return redirect(url_for('debug'))
+
+# Route to add a new raid_player
+@app.route('/debug/add_raid_player', methods=['POST'])
+def add_raid_player():
+    if request.method == 'POST':
+        raid_id = request.form['raid_id']
+        player_id = request.form['player_id']
+        role = request.form['role']
+        
+        # Create a new RaidPlayer object
+        new_raid_player = RaidPlayer(raid_id=raid_id, player_id=player_id, role=role)
+        
+        # Add to the session and commit
+        db.session.add(new_raid_player)
+        db.session.commit()
+        
+        flash('RaidPlayer added successfully!')
+        return redirect(url_for('debug'))
 
 # TODO - Add admin stuff here...
 @app.route('/admin', methods=['GET'])
@@ -73,42 +121,3 @@ def admin():
 # update raid data (all fields)
 
 #################################################
-
-@app.route('/raids/<int:id>', methods=['GET'])
-def raid():
-    
-    active_players, benched_players = get_active_and_benched_players(id)
-
-    return render_template('raid.html', title='Sign In', active_players=active_players, benched_players=benched_players)
-
-def get_active_and_benched_players(raid_id, total_limit=20, tanks_limit=2, healers_limit=4, dps_limit=14):
-    # Query all players in the raid
-    all_players = RaidPlayer.query.filter_by(raid_id=raid_id).order_by(RaidPlayer.joined_at).all()
-    
-    # Get the total number of players in the raid
-    total_players = len(all_players)
-    
-    # If the raid has fewer than the max number of players (20), all are active
-    if total_players < total_limit:
-        return all_players, []  # All are active, no one is benched
-    
-    # Otherwise, apply role limits
-    tanks = [p for p in all_players if p.role == 'tank']
-    healers = [p for p in all_players if p.role == 'healer']
-    dps = [p for p in all_players if p.role == 'dps']
-    
-    # Apply role limits and determine active/benched
-    active_tanks = tanks[:tanks_limit]
-    benched_tanks = tanks[tanks_limit:]
-    
-    active_healers = healers[:healers_limit]
-    benched_healers = healers[healers_limit:]
-    
-    active_dps = dps[:dps_limit]
-    benched_dps = dps[dps_limit:]
-    
-    # Collect all active and benched players
-    active_players = active_tanks + active_healers + active_dps
-    benched_players = benched_tanks + benched_healers + benched_dps
-    
-    return active_players, benched_players
