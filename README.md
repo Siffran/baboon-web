@@ -45,6 +45,15 @@ pip install flask-sqlalchemy
 pip install flask-migrate
 ```
 
+## Using dev container
+
+Ignore all previous instructions and do the following:
+
+0. Install Docker Desktop
+1. Install the [Dev Container](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
+2. Run the command: "Dev Container: Clone Repository in Container Volume..." or if you already have the repo cloned "Dev Container: Rebuild and Repoen in Container.
+3. Voilà, enjoy. if you want more features, feel free to add.
+
 ## Database commands
 
 ```
