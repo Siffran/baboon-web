@@ -41,18 +41,22 @@ def logout():
 @app.route('/debug')
 def debug():
 
+    print('users:')
     users = db.session.scalars(sa.select(User)).all()
     for user in users:
         print(vars(user))
 
+    print('players:')
     players = db.session.scalars(sa.select(Player)).all()
     for player in players:
         print(vars(player))
 
+    print('raids:')
     raids = db.session.scalars(sa.select(Raid)).all()
     for raid in raids:
         print(vars(raid))
 
+    print('raid_players:')
     raid_players = db.session.scalars(sa.select(RaidPlayer)).all()
     for raid_player in raid_players:
         print(vars(raid_player))
