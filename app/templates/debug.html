@@ -42,16 +42,14 @@
                 <th>ID</th>
                 <th>Name</th>
                 <th>Bänkpoäng</th>
-                <th>Trial</th>
-                <th>Core</th>
+                <th>Rank</th>
             </tr>
             {% for player in players %}
                 <tr>
                     <td>{{ player.id }}</td>
                     <td>{{ player.name }}</td>
                     <td>{{ player.bp }}</td>
-                    <td>{{ player.trial }}</td>
-                    <td>{{ player.core }}</td>
+                    <td>{{ player.rank }}</td>
                 </tr>
             {% else %}
                 <tr>
@@ -69,11 +67,12 @@
             <label for="bp">Bänkpoäng (BP):</label>
             <input type="number" id="bp" name="bp" required><br>
     
-            <label for="trial">Trial:</label>
-            <input type="checkbox" id="trial" name="trial"><br>
-    
-            <label for="core">Core:</label>
-            <input type="checkbox" id="core" name="core"><br>
+            <label for="rank">Rank:</label>
+            <select id="rank" name="rank" required>
+                <option value="trial">Trial</option>
+                <option value="raider">Raider</option>
+                <option value="core-raider">Core-Raider</option>
+            </select><br>
     
             <input type="submit" value="Add Player">
         </form>

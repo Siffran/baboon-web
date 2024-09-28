@@ -10,12 +10,12 @@
     <body>
         <div>
             Baboon Platoon: 
-            <a href="{{ url_for('index') }}">Home</a>
-            <a href="{{ url_for('debug') }}">Debug</a>
+            <a href="{{ url_for('main.index') }}">Home</a>
+            <a href="{{ url_for('main.debug') }}">Debug</a>
             {% if current_user.is_anonymous %}
-            <a href="{{ url_for('login') }}">Admin</a>
+            <a href="{{ url_for('main.login') }}">Admin</a>
             {% else %}
-            <a href="{{ url_for('logout') }}">Logout</a>
+            <a href="{{ url_for('main.logout') }}">Logout</a>
             {% endif %}
         </div>
         <hr>

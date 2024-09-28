@@ -37,8 +37,7 @@ class Player(db.Model):
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
     name: so.Mapped[str] = so.mapped_column(sa.String(64), index=True, unique=True, nullable=False)
     bp: so.Mapped[int] = so.mapped_column(nullable=False)
-    trial: so.Mapped[Optional[bool]] = so.mapped_column(sa.Boolean, default=False)
-    core: so.Mapped[Optional[bool]] = so.mapped_column(sa.Boolean, default=False)
+    rank: so.Mapped[str] = so.mapped_column(sa.Enum('core-raider', 'raider', 'trial', name='rank_types'), nullable=True)
 
     # Relationship to RaidPlayer (many-to-many through RaidPlayer)
     raids: so.Mapped[list['RaidPlayer']] = so.relationship('RaidPlayer', back_populates='player')
