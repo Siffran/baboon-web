@@ -28,6 +28,9 @@ pip install flask-wtf
 
 # Flask extension used for login
 pip install flask-login
+
+# Used to read .csv files
+pip install pandas
 ```
 
 ## Dev packages

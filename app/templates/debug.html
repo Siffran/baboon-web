@@ -84,13 +84,21 @@
         <tr>
             <th>ID</th>
             <th>Discord_id</th>
+            <th>Title</th>
+            <th>Description</th>
             <th>Type</th>
+            <th>Date</th>
+            <th>Link</th>
         </tr>
         {% for raid in raids %}
             <tr>
                 <td>{{ raid.id }}</td>
                 <td>{{ raid.discord_id }}</td>
+                <td>{{ raid.title }}</td>
+                <td>{{ raid.description }}</td>
                 <td>{{ raid.type }}</td>
+                <td>{{ raid.timestamp }}</td>
+                <td>{{ raid.link }}</td>
             </tr>
         {% else %}
             <tr>
