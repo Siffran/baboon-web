@@ -99,10 +99,10 @@ class SignUp(db.Model):
     spec_name: so.Mapped[str] = so.mapped_column(sa.String(50))
     name: so.Mapped[str] = so.mapped_column(sa.String(50))
     class_name: so.Mapped[str] = so.mapped_column(sa.String(50))
-    spec_emote_id: so.Mapped[int] = so.mapped_column(sa.Integer)  # Assuming these are integer IDs
-    position: so.Mapped[str] = so.mapped_column(sa.String(50))  # Assuming this is textual
-    class_emote_id: so.Mapped[int] = so.mapped_column(sa.Integer)  # Assuming these are integer IDs
-    user_id: so.Mapped[int] = so.mapped_column(sa.Integer)  # Assuming this is an integer ID
+    spec_emote_id: so.Mapped[int] = so.mapped_column(sa.Integer)
+    position: so.Mapped[str] = so.mapped_column(sa.String(50))
+    class_emote_id: so.Mapped[int] = so.mapped_column(sa.Integer)
+    user_id: so.Mapped[int] = so.mapped_column(sa.Integer)
     status: so.Mapped[str] = so.mapped_column(sa.String(50))
     
     def __repr__(self):
