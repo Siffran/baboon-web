@@ -36,6 +36,11 @@ def logout():
     logout_user()
     return redirect(url_for('main.index'))
 
+@bp.route('/raids')
+def raids():
+    raids = db.session.scalars(sa.select(Raid)).all()
+    return render_template("raids.html", raids=raids)
+
 # Debug view for adding stuff to the database
 @bp.route('/debug')
 def debug():

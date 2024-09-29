@@ -31,6 +31,9 @@ pip install flask-login
 
 # Used to read .csv files
 pip install pandas
+
+# Flask extension to handle time conversions
+pip install flask-moment
 ```
 
 ## Dev packages

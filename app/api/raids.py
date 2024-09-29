@@ -60,13 +60,13 @@ def put_raid():
 
         # Get all players in the raid, if some players in the raid do not exist in the database, add them
         # Fetch existing players
-        existing_players = db.session.query(Player).filter(Player.discord_id.in_(discord_ids)).all()
+        # existing_players = db.session.query(Player).filter(Player.discord_id.in_(discord_ids)).all()
 
         # Create a set of existing discord_ids for quick lookup
-        existing_discord_ids = {player.discord_id for player in existing_players}
+        # existing_discord_ids = {player.discord_id for player in existing_players}
         
         # Create a list for new players
-        new_players = []
+        # new_players = []
 
         """ # Iterate through the provided discord_ids
         for discord_id in discord_ids:

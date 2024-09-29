@@ -98,7 +98,9 @@
                 <td>{{ raid.description }}</td>
                 <td>{{ raid.type }}</td>
                 <td>{{ raid.timestamp }}</td>
-                <td>{{ raid.link }}</td>
+                <td>
+                    <a href="{{ raid.link }}">Link</a>
+                </td>
             </tr>
         {% else %}
             <tr>
