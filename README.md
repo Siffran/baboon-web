@@ -1,7 +1,8 @@
 # baboon-web
 A webserver written in flask.
 
-Inspired by Miguel Grindbergs Blog: https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-i-hello-world
+- Inspired by Miguel Grindbergs Blog: https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-i-hello-world
+- Raid-Helper API specification: https://raid-helper.dev/documentation/api
 
 # Required
 - Python >= 3.12.6
@@ -81,8 +82,34 @@ Run the app
 flask --debug run
 ```
 
-# Setup - Linux
+# Setup - WSL
 Basically the same as for Windows
+
+1. Setup WSL
+```
+wsl --install
+```
+
+2. (Optional) Download [Windows Terminal](https://apps.microsoft.com/detail/9n0dx20hk701?hl=en-US&gl=US) and use bash from there.
+
+3. Download python and follow the same steps for windows except when activatting venv for WSL:
+```
+source venv/bin/activate
+```
+
+# Test the Raid-Helper API
+1. create .env config file in the root directory and add your API key. (Ask server leader for it)
+```
+RAID_HELPER_API_KEY=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+```
+2. Populate the table with signups for latest raid
+````
+http://127.0.0.1:5000/signups/populate
+````
+2. Delete the table with signups for latest raid
+```
+http://127.0.0.1:5000/signups/delete
+```
 
 # Testing
 Run unit tests (TODO)

@@ -1,12 +1,14 @@
 from app.forms import LoginForm
+import os
 from flask_login import current_user, login_user, logout_user, login_required
 from urllib.parse import urlsplit
 from datetime import datetime, timezone
 from flask import render_template, flash, redirect, url_for, request, current_app
 import sqlalchemy as sa
 from app import db
-from app.models import User, Player, Raid, RaidPlayer
+from app.models import User, Player, Raid, RaidPlayer, SignUp
 from app.main import bp
+from app.poller.raid_helper.api import fetch_all_raid_events, fetch_event_details
 
 @bp.route('/')
 @bp.route('/index')
@@ -40,6 +42,15 @@ def logout():
 def raids():
     raids = db.session.scalars(sa.select(Raid)).all()
     return render_template("raids.html", raids=raids)
+
+@bp.route('/signups')
+def signups():
+    try:
+        signups = db.session.scalars(sa.select(SignUp)).all()
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        signups = []
+    return render_template("signups.html", title='Sign Ups', signups=signups)
 
 # Debug view for adding stuff to the database
 @bp.route('/debug')
@@ -112,6 +123,58 @@ def add_raid_player():
         
         flash('RaidPlayer added successfully!')
         return redirect(url_for('main.debug'))
+
+@bp.route('/signups/populate')
+def populate():
+    server_id = "955055697144446976"
+    api_key = os.getenv('RAID_HELPER_API_KEY')
+
+    events = fetch_all_raid_events(server_id, api_key)
+
+    if events is None:
+        return "Failed to fetch events from the API.", 500
+
+    posted_events = events.get('postedEvents', [])
+    
+    if not posted_events:
+        return "No events found.", 404
+
+    latest_event = posted_events[0]
+    event_id = latest_event.get('id')
+
+    detailed_event = fetch_event_details(event_id)
+
+    if detailed_event is None:
+        return f"Failed to fetch details for event ID: {event_id}", 500
+
+    signups = detailed_event.get('signUps', [])
+
+    # Clear the SignUp table before populating
+    db.session.query(SignUp).delete()
+    db.session.commit()
+
+    for signup in signups:
+        new_signup = SignUp(
+            entry_time=datetime.utcfromtimestamp(signup['entryTime']),
+            spec_name=signup.get('specName', 'N/A'),
+            name=signup.get('name', 'N/A'),
+            class_name=signup.get('className', 'N/A'),
+            spec_emote_id=signup.get('specEmoteId', 0),
+            position=signup.get('position', 'N/A'),
+            class_emote_id=signup.get('classEmoteId', 0),
+            user_id=signup.get('userId', 'N/A'),
+            status=signup.get('status', 'active')
+        )
+        db.session.add(new_signup)
+
+    db.session.commit()
+    return 'Database populated with sign-ups for the latest raid event!'
+
+@bp.route('/signups/delete')
+def deleteSignups():
+    db.session.query(SignUp).delete()
+    db.session.commit()
+    return 'Sign-Ups Database deleted!'
 
 # TODO - Add admin stuff here...
 @bp.route('/admin', methods=['GET'])

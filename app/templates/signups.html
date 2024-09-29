@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+    <h2>Latest Raid Sign Ups</h2>
+    <table class="responsive-table highlight">
+        <tr>
+            <th>Entry Time</th>
+            <th>Spec Name</th>
+            <th>Name</th>
+            <th>Class Name</th>
+            <th>Spec Emote ID</th>
+            <th>ID</th>
+            <th>Position</th>
+            <th>Class Emote ID</th>
+            <th>User ID</th>
+            <th>Status</th>
+        </tr>
+        {% for signup in signups %}
+            <tr>
+                <td>{{ signup.entry_time }}</td>
+                <td>{{ signup.spec_name }}</td>
+                <td>{{ signup.name }}</td>
+                <td>{{ signup.class_name }}</td>
+                <td>{{ signup.spec_emote_id }}</td>
+                <td>{{ signup.id }}</td>
+                <td>{{ signup.position }}</td>
+                <td>{{ signup.class_emote_id }}</td>
+                <td>{{ signup.user_id }}</td>
+                <td>{{ signup.status }}</td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="3">No signups found</td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}
