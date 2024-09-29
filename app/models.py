@@ -35,10 +35,10 @@ class Player(db.Model):
     __tablename__ = 'player'
 
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
+    discord_id: so.Mapped[int] = so.mapped_column(index=True,unique=True, nullable=False)
     name: so.Mapped[str] = so.mapped_column(sa.String(64), index=True, unique=True, nullable=False)
     bp: so.Mapped[int] = so.mapped_column(nullable=False)
-    trial: so.Mapped[Optional[bool]] = so.mapped_column(sa.Boolean, default=False)
-    core: so.Mapped[Optional[bool]] = so.mapped_column(sa.Boolean, default=False)
+    rank: so.Mapped[str] = so.mapped_column(sa.Enum('core-raider', 'raider', 'trial', name='rank_types'), nullable=True)
 
     # Relationship to RaidPlayer (many-to-many through RaidPlayer)
     raids: so.Mapped[list['RaidPlayer']] = so.relationship('RaidPlayer', back_populates='player')
@@ -76,6 +76,10 @@ class Raid(db.Model):
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
     discord_id: so.Mapped[str] = so.mapped_column(sa.String, index=True, unique=True, nullable=False)
     type: so.Mapped[str] = so.mapped_column(sa.Enum('chill', 'mythic', name='raid_types'), nullable=False)
+    title: so.Mapped[str] = so.mapped_column(sa.String, unique=False, nullable=False)
+    description: so.Mapped[str] = so.mapped_column(sa.String(length=2048), unique=False, nullable=True)
+    timestamp: so.Mapped[datetime] = so.mapped_column(sa.DateTime)
+    link: so.Mapped[str] = so.mapped_column(sa.String(length=2048), unique=False, nullable=True)
     
     # Relationship to RaidPlayer (many-to-many through RaidPlayer)
     players: so.Mapped[list['RaidPlayer']] = so.relationship('RaidPlayer', back_populates='raid')

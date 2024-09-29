@@ -1,6 +1,12 @@
 <!doctype html>
 <html>
     <head>
+        <!-- Materialize CSS -->
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
+        <!-- jQuery -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <!-- Materialize JS -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
         {% if title %}
         <title>{{ title }} - Baboon Platoon</title>
         {% else %}
@@ -9,13 +15,13 @@
     </head>
     <body>
         <div>
-            Baboon Platoon: 
-            <a href="{{ url_for('index') }}">Home</a>
-            <a href="{{ url_for('debug') }}">Debug</a>
+            <a href="{{ url_for('main.index') }}">Home</a>
+            <a href="{{ url_for('main.raids') }}">Raids</a>
+            <a href="{{ url_for('main.debug') }}">Debug</a>
             {% if current_user.is_anonymous %}
-            <a href="{{ url_for('login') }}">Admin</a>
+            <a href="{{ url_for('main.login') }}">Admin</a>
             {% else %}
-            <a href="{{ url_for('logout') }}">Logout</a>
+            <a href="{{ url_for('main.logout') }}">Logout</a>
             {% endif %}
         </div>
         <hr>
@@ -29,5 +35,8 @@
         {% endif %}
         {% endwith %}
         {% block content %}{% endblock %}
+
+        {{ moment.include_moment() }}
+        {{ moment.locale(auto_detect=True) }}  
     </body>
 </html>
