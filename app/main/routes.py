@@ -11,7 +11,9 @@ from app.main import bp
 @bp.route('/')
 @bp.route('/index')
 def index():
-    return render_template("index.html", title='Home Page')
+    raids_upcoming = db.session.scalars(sa.select(Raid)).all() # TODO filter based on upcoming dates...
+    # TODO get attending and benched players for each upcoming raid... DOCCOOL ALGORITM :)
+    return render_template("index.html", title='Home Page', raids_upcoming=raids_upcoming)
 
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
@@ -40,6 +42,11 @@ def logout():
 def raids():
     raids = db.session.scalars(sa.select(Raid)).all()
     return render_template("raids.html", raids=raids)
+
+@bp.route('/players')
+def players():
+    players = db.session.scalars(sa.select(Player)).all()
+    return render_template("players.html", players=players)
 
 # Debug view for adding stuff to the database
 @bp.route('/debug')

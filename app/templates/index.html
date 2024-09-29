@@ -1,5 +1,27 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>This is the Baboon platoon index page</h1>
+
+<div class="row">
+    {% for raid in raids_upcoming %}
+    <div class="col s12">
+        <div class="card">
+            <div class="card-content">
+                <span class="card-title">{{raid.title}}</span>
+                <p><strong> Datum: {{ moment(raid.timestamp).format('LLL') }} </strong></p>
+                <p>{{raid.description}}</p>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="col s12">
+        <div class="card">
+            <div class="card-content">
+                <span class="card-title">Inga planerade raider</span>
+                <p>Det finns för tillfället inga nya planerade raider.</p>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
 {% endblock %}
