@@ -92,10 +92,7 @@ class SignUp(db.Model):
     __tablename__ = 'signup'
 
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
-
-    # Correctly import DateTime from sqlalchemy
     entry_time: so.Mapped[datetime] = so.mapped_column(sa.DateTime, nullable=False, default=datetime.utcnow)
-
     spec_name: so.Mapped[str] = so.mapped_column(sa.String(50))
     name: so.Mapped[str] = so.mapped_column(sa.String(50))
     class_name: so.Mapped[str] = so.mapped_column(sa.String(50))
