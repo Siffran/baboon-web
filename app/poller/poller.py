@@ -1,1 +1,0 @@
-# Scheduling & intervals for when to poll

@@ -34,11 +34,10 @@ def load_user(id):
 class Player(db.Model):
     __tablename__ = 'player'
 
-    id: so.Mapped[int] = so.mapped_column(primary_key=True)
-    discord_id: so.Mapped[int] = so.mapped_column(index=True,unique=True, nullable=False)
+    discord_id: so.Mapped[int] = so.mapped_column(primary_key=True, index=True,unique=True, nullable=False)
     name: so.Mapped[str] = so.mapped_column(sa.String(64), index=True, unique=True, nullable=False)
-    bp: so.Mapped[int] = so.mapped_column(nullable=False)
-    rank: so.Mapped[str] = so.mapped_column(sa.Enum('core-raider', 'raider', 'trial', name='rank_types'), nullable=True)
+    bp: so.Mapped[int] = so.mapped_column(default=0, nullable=False)
+    rank: so.Mapped[str] = so.mapped_column(sa.Enum('core-raider', 'raider', 'trial', name='rank_types'), default='raider', nullable=False)
 
     # Relationship to RaidPlayer (many-to-many through RaidPlayer)
     raids: so.Mapped[list['RaidPlayer']] = so.relationship('RaidPlayer', back_populates='player')
@@ -50,11 +49,11 @@ class Player(db.Model):
 class RaidPlayer(db.Model):
     __tablename__ = 'raid_player'
     
-    raid_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey('raid.id'), primary_key=True)
-    player_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey('player.id'), primary_key=True)
+    raid_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey('raid.discord_id'), primary_key=True)
+    player_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey('player.discord_id'), primary_key=True)
     
     # Enum for role (tank, healer, dps)
-    role: so.Mapped[str] = so.mapped_column(sa.Enum('tank', 'healer', 'dps', name='role_types'), nullable=False)
+    role: so.Mapped[str] = so.mapped_column(sa.Enum('Tank', 'Healer', 'Ranged', 'Melee', 'Late','Tentative', 'Absence', name='role_types'), nullable=False)
     
     # Timestamp when the player joined the raid
     joined_at: so.Mapped[datetime] = so.mapped_column(sa.DateTime, default=datetime.now(timezone.utc), nullable=False)
@@ -73,8 +72,7 @@ class RaidPlayer(db.Model):
 class Raid(db.Model):
     __tablename__ = 'raid'
 
-    id: so.Mapped[int] = so.mapped_column(primary_key=True)
-    discord_id: so.Mapped[str] = so.mapped_column(sa.String, index=True, unique=True, nullable=False)
+    discord_id: so.Mapped[int] = so.mapped_column(primary_key=True, index=True, unique=True, nullable=False)
     type: so.Mapped[str] = so.mapped_column(sa.Enum('chill', 'mythic', name='raid_types'), nullable=False)
     title: so.Mapped[str] = so.mapped_column(sa.String, unique=False, nullable=False)
     description: so.Mapped[str] = so.mapped_column(sa.String(length=2048), unique=False, nullable=True)
@@ -85,21 +83,3 @@ class Raid(db.Model):
 
     def __repr__(self):
         return f'<Raid {self.discord_id}>'
-
-# A SignUp model
-class SignUp(db.Model):
-    __tablename__ = 'signup'
-
-    id: so.Mapped[int] = so.mapped_column(primary_key=True)
-    entry_time: so.Mapped[datetime] = so.mapped_column(sa.DateTime, nullable=False, default=datetime.utcnow)
-    spec_name: so.Mapped[str] = so.mapped_column(sa.String(50))
-    name: so.Mapped[str] = so.mapped_column(sa.String(50))
-    class_name: so.Mapped[str] = so.mapped_column(sa.String(50))
-    spec_emote_id: so.Mapped[int] = so.mapped_column(sa.Integer)
-    position: so.Mapped[str] = so.mapped_column(sa.String(50))
-    class_emote_id: so.Mapped[int] = so.mapped_column(sa.Integer)
-    user_id: so.Mapped[int] = so.mapped_column(sa.Integer)
-    status: so.Mapped[str] = so.mapped_column(sa.String(50))
-    
-    def __repr__(self):
-        return f'<SignUp {self.name}, Spec: {self.spec_name}>'

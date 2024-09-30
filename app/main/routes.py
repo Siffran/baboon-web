@@ -6,16 +6,31 @@ from datetime import datetime, timezone
 from flask import render_template, flash, redirect, url_for, request, current_app
 import sqlalchemy as sa
 from app import db
-from app.models import User, Player, Raid, RaidPlayer, SignUp
+from app.models import User, Player, Raid, RaidPlayer
 from app.main import bp
-from app.poller.raid_helper.api import fetch_all_raid_events, fetch_event_details
+import requests
 
 @bp.route('/')
 @bp.route('/index')
 def index():
-    raids_upcoming = db.session.scalars(sa.select(Raid)).all() # TODO filter based on upcoming dates...
+
+    # Fetch upcoming raids based on the current date and time
+    raids_upcoming = db.session.scalars(
+        sa.select(Raid).where(Raid.timestamp > datetime.now(timezone.utc))
+    ).all()
+
+    #players = db.session.scalars(sa.select(Player)).all() # TODO filter based on raids...
+
+    # Prepare a dictionary to map raid IDs to their players
+    # raid_players_map = {}
+
+    # Fetch players for all upcoming raids efficiently
+    #for raid in raids_upcoming:
+    #    players = raid.players  # Assuming a relationship is defined in the Raid model
+    #    raid_players_map[raid.discord_id] = players
+
     # TODO get attending and benched players for each upcoming raid... DOCCOOL ALGORITM :)
-    return render_template("index.html", title='Home Page', raids_upcoming=raids_upcoming)
+    return render_template("index.html", title='Home Page', raids_upcoming=raids_upcoming, )
 
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
@@ -45,19 +60,115 @@ def raids():
     raids = db.session.scalars(sa.select(Raid)).all()
     return render_template("raids.html", raids=raids)
 
-@bp.route('/signups')
-def signups():
-    try:
-        signups = db.session.scalars(sa.select(SignUp)).all()
-    except Exception as e:
-        print(f"An error occurred: {e}")
-        signups = []
-    return render_template("signups.html", title='Sign Ups', signups=signups)
-
 @bp.route('/players')
 def players():
     players = db.session.scalars(sa.select(Player)).all()
     return render_template("players.html", players=players)
+
+# TODO - Add admin stuff here...
+@bp.route('/admin', methods=['GET'])
+@login_required
+def admin():
+    return redirect(url_for('main.index'))
+
+@bp.route('/fetch_raids', methods=['GET'])
+def fetch_raids():
+    flash('Fetched raids from Raid-Helper-Api')
+
+    fetch_upcoming_raid_events()
+
+    return redirect(url_for('main.raids'))
+
+
+# Extract data from Raid Helper API: https://raid-helper.dev/documentation/api
+
+def fetch_upcoming_raid_events():
+
+    server_id = "955055697144446976"
+    api_key = os.getenv('RAID_HELPER_API_KEY')
+
+    url = f"https://raid-helper.dev/api/v3/servers/{server_id}/events"
+    headers = {
+        'Authorization': f'{api_key}',
+        'StartTimeFilter': f'{int(datetime.now(timezone.utc).timestamp())}',
+        'IncludeSignUps': 'true'
+    }
+
+    try:
+        response = requests.get(url, headers=headers)
+
+        response.raise_for_status()
+
+        data = response.json()  # Parse JSON response into a dictionary
+
+        # Populate the database
+        for event in data['postedEvents']:
+
+            # Remove all RaidPlayer entries for given Raid
+            raid_players = db.session.query(RaidPlayer).filter(RaidPlayer.raid_id == event['id']).all()
+
+            # Delete all matching RaidPlayer objects
+            for raid_player in raid_players:
+                db.session.delete(raid_player)
+
+            # Add raid to db...
+            # TODO: Type hardcoded for now...
+            existing_raid = db.session.query(Raid).filter_by(discord_id=event['id']).first()
+
+            if existing_raid:
+                # If a raid with the same discord_id already exists, update its fields
+                existing_raid.type = 'chill'  # Hardcoded for now
+                existing_raid.title = event['title']
+                existing_raid.description = event['description']
+                existing_raid.timestamp = datetime.fromtimestamp(event['startTime'])
+            else:
+                # If no such raid exists, create a new one
+                raid = Raid(
+                    discord_id=event['id'], 
+                    type='chill', # Hardcoded for now
+                    title=event['title'], 
+                    description=event['description'],
+                    timestamp=datetime.fromtimestamp(event['startTime'])
+                )
+                db.session.add(raid)
+
+            for player in event['signUps']:
+
+                # Add player to db...
+                existing_player = db.session.query(Player).filter_by(discord_id=player['userId']).first()
+
+                if existing_player:
+                    # If a player with the same discord_id already exists, update its fields
+                    existing_player.name = player['name']
+                else:
+                    # If no such player exists, create a new one
+                    new_player = Player(
+                        discord_id=player['userId'], 
+                        name=player['name']
+                    )
+                    db.session.add(new_player)
+
+                # Add RaidPlayers to db...
+                raid_player = RaidPlayer(
+                    raid_id=event['id'],
+                    player_id=player['userId'],
+                    role=player['className'],
+                    joined_at=datetime.fromtimestamp(player['entryTime'])
+                )
+                db.session.add(raid_player)
+
+        db.session.commit()
+        return None
+    except requests.RequestException as e:
+        print(f"Error fetching events: {e}")
+        return None
+
+# TODO
+# update player data (all fields)
+# update raid data (all fields)
+
+#################################################
+    
 
 # Debug view for adding stuff to the database
 @bp.route('/debug')
@@ -130,67 +241,3 @@ def add_raid_player():
         
         flash('RaidPlayer added successfully!')
         return redirect(url_for('main.debug'))
-
-@bp.route('/signups/populate')
-def populate():
-    server_id = "955055697144446976"
-    api_key = os.getenv('RAID_HELPER_API_KEY')
-
-    events = fetch_all_raid_events(server_id, api_key)
-
-    if events is None:
-        return "Failed to fetch events from the API.", 500
-
-    posted_events = events.get('postedEvents', [])
-    
-    if not posted_events:
-        return "No events found.", 404
-
-    latest_event = posted_events[0]
-    event_id = latest_event.get('id')
-
-    detailed_event = fetch_event_details(event_id)
-
-    if detailed_event is None:
-        return f"Failed to fetch details for event ID: {event_id}", 500
-
-    signups = detailed_event.get('signUps', [])
-
-    # Clear the SignUp table before populating
-    db.session.query(SignUp).delete()
-    db.session.commit()
-
-    for signup in signups:
-        new_signup = SignUp(
-            entry_time=datetime.utcfromtimestamp(signup['entryTime']),
-            spec_name=signup.get('specName', 'N/A'),
-            name=signup.get('name', 'N/A'),
-            class_name=signup.get('className', 'N/A'),
-            spec_emote_id=signup.get('specEmoteId', 0),
-            position=signup.get('position', 'N/A'),
-            class_emote_id=signup.get('classEmoteId', 0),
-            user_id=signup.get('userId', 'N/A'),
-            status=signup.get('status', 'active')
-        )
-        db.session.add(new_signup)
-
-    db.session.commit()
-    return 'Database populated with sign-ups for the latest raid event!'
-
-@bp.route('/signups/delete')
-def deleteSignups():
-    db.session.query(SignUp).delete()
-    db.session.commit()
-    return 'Sign-Ups Database deleted!'
-
-# TODO - Add admin stuff here...
-@bp.route('/admin', methods=['GET'])
-@login_required
-def admin():
-    return redirect(url_for('main.index'))
-
-# TODO
-# update player data (all fields)
-# update raid data (all fields)
-
-#################################################

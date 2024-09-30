@@ -35,6 +35,9 @@ pip install pandas
 
 # Flask extension to handle time conversions
 pip install flask-moment
+
+# Be able to make API requests
+pip install requests
 ```
 
 ## Dev packages
