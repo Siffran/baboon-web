@@ -8,6 +8,7 @@ import sqlalchemy as sa
 from app import db
 from app.models import User, Player, Raid, RaidPlayer
 from app.main import bp
+from sqlalchemy import func
 import requests
 
 @bp.route('/')
@@ -62,10 +63,24 @@ def raids():
 
 @bp.route('/players')
 def players():
-    players = db.session.scalars(sa.select(Player)).all()
+    
+    players = db.session.scalars(sa.select(Player).order_by(func.lower(Player.name))).all()
     return render_template("players.html", players=players)
 
-# TODO - Add admin stuff here...
+@bp.route('/players/<int:player_id>', methods=['POST'])
+def update_player(player_id):
+    bp = request.form['bp']
+    rank = request.form['rank']
+    
+    # Here, implement logic to update the player's BP and rank in the database.
+    player = Player.query.get(player_id)  # Assuming you're using SQLAlchemy
+    if player:
+        player.bp = bp
+        player.rank = rank
+        db.session.commit()
+    
+    return redirect(url_for('main.players'))  # Redirect to the players page after update
+
 @bp.route('/admin', methods=['GET'])
 @login_required
 def admin():
@@ -78,7 +93,6 @@ def fetch_raids():
     fetch_upcoming_raid_events()
 
     return redirect(url_for('main.raids'))
-
 
 # Extract data from Raid Helper API: https://raid-helper.dev/documentation/api
 

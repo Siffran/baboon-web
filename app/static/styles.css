@@ -1,1 +1,31 @@
 /* styles.css */
+
+/* Gradient background for different roles */
+.highlight-tank {
+    background: linear-gradient(135deg, #7e4e00, #a35501);
+    color: white; /* Text color for headers */
+}
+
+.highlight-healer {
+    background: linear-gradient(135deg, #4CAF50, #81C784);
+    color: white; /* Text color for headers */
+}
+
+.highlight-melee {
+    background: linear-gradient(135deg, #720297, #b902d9);
+    color: white; /* Text color for headers */
+}
+
+.highlight-ranged {
+    background: linear-gradient(135deg, #077bda, #63b5ef);
+    color: white; /* Text color for headers */
+}
+
+.highlight-core {
+    color: yellowgreen; /* Text color for headers */
+}
+
+.highlight-benched {
+    background: linear-gradient(135deg, #871f0f, #d41e02);
+    color: white; /* Text color for headers */
+}
