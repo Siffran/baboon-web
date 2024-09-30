@@ -7,6 +7,8 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
         <!-- Materialize JS -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+        <!-- Google Material icons -->
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
         {% if title %}
         <title>{{ title }} - Baboon Platoon</title>
         {% else %}
@@ -14,17 +16,22 @@
         {% endif %}
     </head>
     <body>
-        <div>
-            <a href="{{ url_for('main.index') }}">Home</a>
-            <a href="{{ url_for('main.raids') }}">Raids</a>
-            <a href="{{ url_for('main.debug') }}">Debug</a>
-            {% if current_user.is_anonymous %}
-            <a href="{{ url_for('main.login') }}">Admin</a>
-            {% else %}
-            <a href="{{ url_for('main.logout') }}">Logout</a>
-            {% endif %}
-        </div>
-        <hr>
+        <nav>
+            <div class="nav-wrapper">
+                <a href="#" class="brand-logo">Baboon Platoon</a>
+                <ul id="nav-mobile" class="right hide-on-med-and-down">
+                    <li><a href="{{ url_for('main.index') }}">Home</a></li>
+                    <li><a href="{{ url_for('main.raids') }}">Raids</a></li>
+                    <li><a href="{{ url_for('main.players') }}">Players</a></li>
+                    <li><a href="{{ url_for('main.debug') }}">Debug</a></li>
+                    {% if current_user.is_anonymous %}
+                    <li><a href="{{ url_for('main.login') }}">Admin</a></li>
+                    {% else %}
+                    <li><a href="{{ url_for('main.logout') }}">Logout</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </nav>
         {% with messages = get_flashed_messages() %}
         {% if messages %}
         <ul>
