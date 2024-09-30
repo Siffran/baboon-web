@@ -7,20 +7,16 @@
         <th>Titel</th>
         <th>Typ</th>
         <th>Datum</th>
-        <th>Link</th>
     </tr>
     {% for raid in raids %}
         <tr>
             <td>{{ raid.title }}</td>
             <td>{{ raid.type }}</td>
             <td>{{ moment(raid.timestamp).format('LLL') }}</td>
-            <td>
-                <a href="{{ raid.link }}">Link</a>
-            </td>
         </tr>
     {% else %}
         <tr>
-            <td colspan="4">No raids found</td>
+            <td colspan="3">No raids found</td>
         </tr>
     {% endfor %}
 </table>
