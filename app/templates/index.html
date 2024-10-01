@@ -59,10 +59,10 @@
                     <div class="col s12">
                         <table class="centered">
                             <thead>
-                                <tr><th class="highlight-benched">Benched</th></tr>
+                                <tr><th class="highlight-benched">Bench</th></tr>
                             </thead>
                             <tbody>
-                                {% for raid_player in raid.players if raid_player.role == 'BP' %}
+                                {% for raid_player in raid.players if raid_player.role == 'Baboon_Bench' %}
                                     <tr class="ranged">
                                         {% include '_player.html' %}
                                     </tr>

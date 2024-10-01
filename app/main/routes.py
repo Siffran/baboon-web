@@ -20,17 +20,6 @@ def index():
         sa.select(Raid).where(Raid.timestamp > datetime.now(timezone.utc))
     ).all()
 
-    #players = db.session.scalars(sa.select(Player)).all() # TODO filter based on raids...
-
-    # Prepare a dictionary to map raid IDs to their players
-    # raid_players_map = {}
-
-    # Fetch players for all upcoming raids efficiently
-    #for raid in raids_upcoming:
-    #    players = raid.players  # Assuming a relationship is defined in the Raid model
-    #    raid_players_map[raid.discord_id] = players
-
-    # TODO get attending and benched players for each upcoming raid... DOCCOOL ALGORITM :)
     return render_template("index.html", title='Home Page', raids_upcoming=raids_upcoming, )
 
 @bp.route('/login', methods=['GET', 'POST'])
@@ -88,9 +77,14 @@ def admin():
 
 @bp.route('/fetch_raids', methods=['GET'])
 def fetch_raids():
-    flash('Fetched raids from Raid-Helper-Api')
 
     fetch_upcoming_raid_events()
+    
+    # Fetch upcoming raids from DB
+    raids = db.session.scalars(sa.select(Raid).filter(Raid.timestamp >= datetime.now(timezone.utc))).all()
+
+    for raid in raids:
+        update_bench(raid.discord_id)
 
     return redirect(url_for('main.raids'))
 
@@ -126,12 +120,11 @@ def fetch_upcoming_raid_events():
                 db.session.delete(raid_player)
 
             # Add raid to db...
-            # TODO: Type hardcoded for now...
             existing_raid = db.session.query(Raid).filter_by(discord_id=event['id']).first()
 
             if existing_raid:
                 # If a raid with the same discord_id already exists, update its fields
-                existing_raid.type = 'chill'  # Hardcoded for now
+                existing_raid.type = 'mythic' if 'mythic' in event['title'].lower() else 'chill'
                 existing_raid.title = event['title']
                 existing_raid.description = event['description']
                 existing_raid.timestamp = datetime.fromtimestamp(event['startTime'])
@@ -172,10 +165,77 @@ def fetch_upcoming_raid_events():
                 db.session.add(raid_player)
 
         db.session.commit()
+
         return None
     except requests.RequestException as e:
         print(f"Error fetching events: {e}")
         return None
+
+def update_bench(raid_id):
+
+    #Fetch raid
+    raid = db.session.scalar(sa.select(Raid).filter(Raid.discord_id == raid_id))
+
+    # Split players by roles
+    tanks = [p for p in raid.players if p.role == 'Tank']
+    healers = [p for p in raid.players if p.role == 'Healer']
+    dps = [p for p in raid.players if p.role == 'Melee' or p.role == 'Ranged']
+
+    # Sort each role by core-raider status, bp (descending), and joined_at (ascending)
+    if raid.type.lower() == 'mythic':
+        tanks.sort(key=lambda p: (-int(p.player.rank == 'core-raider'), -p.player.bp, p.joined_at))
+        healers.sort(key=lambda p: (-int(p.player.rank == 'core-raider'), -p.player.bp, p.joined_at))
+        dps.sort(key=lambda p: (-int(p.player.rank == 'core-raider'), -p.player.bp, p.joined_at))
+    else:
+        tanks.sort(key=lambda p: (-p.player.bp, p.joined_at))
+        healers.sort(key=lambda p: (-p.player.bp, p.joined_at))
+        dps.sort(key=lambda p: (-p.player.bp, p.joined_at))
+
+    # Set max capacities based on event type
+    if raid.type.lower() == 'mythic':
+        tank_spots, healer_spots, dps_spots = 2, 4, 14
+    elif raid.type.lower() == 'chill':
+        tank_spots, healer_spots, dps_spots = 2, 6, 22
+    else:
+        raise ValueError('Unknown event type')
+
+    # Assign players based on role capacities
+    assigned_tanks = tanks[:tank_spots]
+    assigned_healers = healers[:healer_spots]
+    assigned_dps = dps[:dps_spots]
+
+    # Players who are not selected in their primary role
+    benched_tanks = tanks[tank_spots:]
+    benched_healers = healers[healer_spots:]
+    benched_dps = dps[dps_spots:]
+
+    # Calculate available spots from under-filled roles (tanks, healers, dps)
+    remaining_tank_spots = max(0, tank_spots - len(assigned_tanks))
+    remaining_healer_spots = max(0, healer_spots - len(assigned_healers))
+    remaining_dps_spots = max(0, dps_spots - len(assigned_dps))
+
+    # Total available extra spots
+    total_extra_spots = remaining_tank_spots + remaining_healer_spots + remaining_dps_spots
+
+    # Create a pool of benched players, sorted by core-raider (if mythic), BP and joined_at
+    benched_players = benched_tanks + benched_healers + benched_dps
+
+    if raid.type.lower() == 'mythic':
+        benched_players.sort(key=lambda p: (-int(p.player.rank == 'core-raider'), -p.player.bp, p.joined_at))
+    else:
+        benched_players.sort(key=lambda p: (-p.player.bp, p.joined_at))
+
+    # Pull people from the bench to fill any remaining spots
+    if total_extra_spots > 0:
+        benched_players = benched_players[total_extra_spots:]  # Remaining players on the bench after extra assignment
+
+    # Update benched players
+    for player in benched_players:
+        player.role = 'Baboon_Bench'
+
+    db.session.commit()
+
+    return None
 
 # TODO
 # update player data (all fields)

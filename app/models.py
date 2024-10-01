@@ -53,7 +53,7 @@ class RaidPlayer(db.Model):
     player_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey('player.discord_id'), primary_key=True)
     
     # Enum for role (tank, healer, dps)
-    role: so.Mapped[str] = so.mapped_column(sa.Enum('Tank', 'Healer', 'Ranged', 'Melee', 'Late','Tentative', 'Absence', name='role_types'), nullable=False)
+    role: so.Mapped[str] = so.mapped_column(sa.Enum('Tank', 'Healer', 'Ranged', 'Melee', 'Late','Tentative', 'Absence', 'Bench', 'Baboon_Bench', name='role_types'), nullable=False)
     
     # Timestamp when the player joined the raid
     joined_at: so.Mapped[datetime] = so.mapped_column(sa.DateTime, default=datetime.now(timezone.utc), nullable=False)
