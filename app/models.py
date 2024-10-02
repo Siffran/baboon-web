@@ -76,7 +76,8 @@ class Raid(db.Model):
     type: so.Mapped[str] = so.mapped_column(sa.Enum('chill', 'mythic', name='raid_types'), nullable=False)
     title: so.Mapped[str] = so.mapped_column(sa.String, unique=False, nullable=False)
     description: so.Mapped[str] = so.mapped_column(sa.String(length=2048), unique=False, nullable=True)
-    timestamp: so.Mapped[datetime] = so.mapped_column(sa.DateTime)
+    timestamp: so.Mapped[datetime] = so.mapped_column(sa.DateTime(timezone=True))
+    is_locked: so.Mapped[bool] = so.mapped_column(sa.Boolean, default=False, nullable=False)
     
     # Relationship to RaidPlayer (many-to-many through RaidPlayer)
     players: so.Mapped[list['RaidPlayer']] = so.relationship('RaidPlayer', back_populates='raid')

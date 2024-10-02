@@ -2,7 +2,7 @@ from app.forms import LoginForm
 import os
 from flask_login import current_user, login_user, logout_user, login_required
 from urllib.parse import urlsplit
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from flask import render_template, flash, redirect, url_for, request, current_app
 import sqlalchemy as sa
 from app import db
@@ -88,7 +88,29 @@ def fetch_raids():
     raids = db.session.scalars(sa.select(Raid).filter(Raid.timestamp >= datetime.now(timezone.utc))).all()
 
     for raid in raids:
+
+        # Update the bench for raids that are not locked
         update_bench(raid.discord_id)
+
+        # Check if raid is already locked
+        if raid.is_locked:
+            continue  # Skip this raid since it's locked
+
+        # Check if the raid is within the next 24 hours
+        # Remove tz and micorseconds because reasons...
+        now = datetime.now(timezone.utc).replace(microsecond=0, tzinfo=None)
+
+        if raid.timestamp <= now + timedelta(hours=24):
+            # Lock the raid
+            raid.is_locked = True
+
+            # Update player bench points
+            for raid_player in raid.players:
+                if raid_player.role == 'Baboon_Bench':
+                    raid_player.player.bp += 1
+
+            # Commit changes to the database
+            db.session.commit()
 
     return redirect(url_for('main.raids'))
 
@@ -116,15 +138,18 @@ def fetch_upcoming_raid_events():
         # Populate the database
         for event in data['postedEvents']:
 
+            existing_raid = db.session.query(Raid).filter_by(discord_id=event['id']).first()
+
+            # If the raid is locked, don't update it.
+            if existing_raid is not None and existing_raid.is_locked:
+                continue
+
             # Remove all RaidPlayer entries for given Raid
             raid_players = db.session.query(RaidPlayer).filter(RaidPlayer.raid_id == event['id']).all()
 
             # Delete all matching RaidPlayer objects
             for raid_player in raid_players:
                 db.session.delete(raid_player)
-
-            # Add raid to db...
-            existing_raid = db.session.query(Raid).filter_by(discord_id=event['id']).first()
 
             if existing_raid:
                 # If a raid with the same discord_id already exists, update its fields
