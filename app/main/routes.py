@@ -20,6 +20,10 @@ def index():
         sa.select(Raid).where(Raid.timestamp > datetime.now(timezone.utc))
     ).all()
 
+    # Sort players by bp (descending) and joined_at (ascending) for each raid
+    for raid in raids_upcoming:
+        raid.players.sort(key=lambda raid_player: (-raid_player.player.bp, raid_player.joined_at))
+
     return render_template("index.html", title='Home Page', raids_upcoming=raids_upcoming, )
 
 @bp.route('/login', methods=['GET', 'POST'])
@@ -127,7 +131,7 @@ def fetch_upcoming_raid_events():
                 existing_raid.type = 'mythic' if 'mythic' in event['title'].lower() else 'chill'
                 existing_raid.title = event['title']
                 existing_raid.description = event['description']
-                existing_raid.timestamp = datetime.fromtimestamp(event['startTime'])
+                existing_raid.timestamp = datetime.fromtimestamp(event['startTime'], tz=timezone.utc)
             else:
                 # If no such raid exists, create a new one
                 raid = Raid(
@@ -135,7 +139,7 @@ def fetch_upcoming_raid_events():
                     type='chill', # Hardcoded for now
                     title=event['title'], 
                     description=event['description'],
-                    timestamp=datetime.fromtimestamp(event['startTime'])
+                    timestamp=datetime.fromtimestamp(event['startTime'], tz=timezone.utc)
                 )
                 db.session.add(raid)
 
@@ -160,7 +164,7 @@ def fetch_upcoming_raid_events():
                     raid_id=event['id'],
                     player_id=player['userId'],
                     role=player['className'],
-                    joined_at=datetime.fromtimestamp(player['entryTime'])
+                    joined_at=datetime.fromtimestamp(player['entryTime'], tz=timezone.utc)
                 )
                 db.session.add(raid_player)
 

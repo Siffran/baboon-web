@@ -5,7 +5,7 @@
         <i class="mb-0 material-icons highlight-core">grade</i>
     {% endif %}
 </td>
-<td class="right">{{moment(raid_player.joined_at).format('LLL')}}</td>
+<td class="right">{{moment(raid_player.joined_at).format ('LLL')}}</td>
 <td class="right">
     {% for _ in range(raid_player.player.bp) %}
         <img src="{{ url_for('static', filename='images/bench_baboon2.png') }}" class="responsive-img" style="width: 22px; height: auto;">
