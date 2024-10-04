@@ -5,39 +5,25 @@
     <tr>
         <th>Namn</th>
         <th>Rank</th>
-        <th>Bänkpoäng</th>
+        <th class="right">Bänkpoäng</th>
         <th></th>
     </tr>
     {% for player in players %}
-    <tr>
-        <td>{{ player.name }}</td>
-        <td>
-            <form action="{{ url_for('main.update_player', player_id=player.discord_id) }}" method="POST" style="display: inline;">
-                <select name="rank" required>
-                    <option value="trial" {% if player.rank == 'trial' %}selected{% endif %}>Trial</option>
-                    <option value="raider" {% if player.rank == 'raider' %}selected{% endif %}>Raider</option>
-                    <option value="core-raider" {% if player.rank == 'core-raider' %}selected{% endif %}>Core Raider</option>
-                </select>
-        </td>
-        <td>
-            <input type="number" name="bp" value="{{ player.bp }}" required>
-        </td>
-        <td>
-            <button type="submit" class="btn">Update</button>
-        </td>
-            </form>
-    </tr>
-{% else %}
+        <tr>
+            <td>{{ player.name }}</td>
+            <td>
+                {{ player.rank }}
+            </td>
+            <td class="right">
+                {% for _ in range(player.bp) %}
+                    <img src="{{ url_for('static', filename='images/bench_baboon2.png') }}" class="responsive-img" style="width: 22px; height: auto;">
+                {% endfor %}
+            </td>
+        </tr>
+    {% else %}
         <tr>
             <td colspan="3">No players found</td>
         </tr>
     {% endfor %}
 </table>
-<script>
-    // Init select elements...
-    $(document).ready(function(){
-        $('select').formSelect();
-    });
-</script>
-
 {% endblock %}
