@@ -12,16 +12,23 @@
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
         <!-- Custom styles...-->
         <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+        <!-- Flag icons -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.2.3/css/flag-icons.min.css"/>
         {% if title %}
         <title>{{ title }} - Baboon Platoon</title>
         {% else %}
         <title>Welcome to Baboon Platoon!</title>
         {% endif %}
+
+        {{ moment.include_moment() }}
+        {{ moment.locale('sv') }}  <!-- Set default locale to Swedish -->
     </head>
     <body>
         <nav>
             <div class="nav-wrapper">
-                <a href="{{ url_for('main.index') }}" class="brand-logo">Baboon Platoon</a>
+                <a href="{{ url_for('main.index') }}" class="brand-logo">
+                    Baboon Platoon
+                </a>
                 <a href="#" data-target="mobile-menu" class="sidenav-trigger"><i class="material-icons">menu</i></a>
                 <ul id="nav-mobile" class="right hide-on-med-and-down">
                     <li><a href="{{ url_for('main.index') }}">Home</a></li>
@@ -34,6 +41,10 @@
                         <li><a href="{{ url_for('main.players') }}">Players</a></li>
                         <li><a href="{{ url_for('main.login') }}">Admin</a></li>
                     {% endif %}
+                    <!-- Buttons to change locale with flag icons -->
+                    <li><a onclick="setLocale('sv')"><span class="fi fi-se"></span></a></li>
+                    <li><a onclick="setLocale('fi')"><span class="fi fi-fi"></span></a></li>
+                    <li><a onclick="setLocale('en')"><span class="fi fi-gb"></span></a></li>
                 </ul>
             </div>
         </nav>
@@ -50,6 +61,10 @@
                 <li><a href="{{ url_for('main.players') }}">Players</a></li>
                 <li><a href="{{ url_for('main.login') }}">Admin</a></li>
             {% endif %}
+            <!-- Buttons to change locale with flag icons -->
+            <li><a onclick="setLocale('sv')"><span class="fi fi-se"></span></a></li>
+            <li><a onclick="setLocale('fi')"><span class="fi fi-fi"></span></a></li>
+            <li><a onclick="setLocale('en')"><span class="fi fi-gb"></span></a></li>
         </ul>
 
         {% with messages = get_flashed_messages() %}
@@ -63,23 +78,42 @@
         {% endwith %}
         <div class="row">
             <div class="col l3">
-
             </div>
             <div class="col s12 l6">
                 {% block content %}{% endblock %}
             </div>
             <div class="col l3">
-
             </div>
         </div>
-
-        {{ moment.include_moment() }}
-        {{ moment.locale(auto_detect=True) }}  
     </body>
 </html>
 
 <!-- Materialize JS -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+<script>
+    // Function to set the locale
+    function setLocale(locale) {
+        // Update Moment.js locale
+        moment.locale(locale);
+
+        // Store the selected locale in local storage
+        localStorage.setItem('locale', locale);
+
+        // Log the change to console
+        console.log(`Locale changed to: ${locale}`);
+
+        // Reload the page to apply changes
+        location.reload();
+    }
+
+    // Check local storage for saved locale on page load
+    const savedLocale = localStorage.getItem('locale');
+    if (savedLocale) {
+        // If a locale is saved, set it
+        moment.locale(savedLocale);
+    }
+</script>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
