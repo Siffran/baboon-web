@@ -1,18 +1,24 @@
 {% extends "base.html" %}
 
 {% block content %}
-
-<table class="responsive-table highlight">
+<table>
     <tr>
         <th>Namn</th>
         <th>Rank</th>
-        <th>Bänkpoäng</th>
+        <th class="right">Bänkpoäng</th>
+        <th></th>
     </tr>
     {% for player in players %}
         <tr>
-            <td>{{ player.title }}</td>
-            <td>{{ player.rank }}</td>
-            <td>{{ player.bp }}</td>
+            <td>{{ player.name }}</td>
+            <td>
+                {{ player.rank }}
+            </td>
+            <td class="right">
+                {% for _ in range(player.bp) %}
+                    <img src="{{ url_for('static', filename='images/bench_baboon2.png') }}" class="responsive-img" style="width: 22px; height: auto;">
+                {% endfor %}
+            </td>
         </tr>
     {% else %}
         <tr>
@@ -20,5 +26,4 @@
         </tr>
     {% endfor %}
 </table>
-
 {% endblock %}

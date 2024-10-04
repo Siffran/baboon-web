@@ -1,0 +1,14 @@
+<td class="left">{{ raid_player.role }}</td>
+<td class="left"><strong>{{raid_player.player.name}}</strong></td>
+<td class="left">
+    {% if raid_player.player.rank == 'core-raider' %}
+        <i class="mb-0 material-icons highlight-core">grade</i>
+    {% endif %}
+</td>
+<td class="right">{{moment(raid_player.joined_at).format ('LLL')}}</td>
+<td class="right">
+    {% for _ in range(raid_player.player.bp) %}
+        <img src="{{ url_for('static', filename='images/bench_baboon2.png') }}" class="responsive-img" style="width: 22px; height: auto;">
+    {% endfor %}
+</td>
+

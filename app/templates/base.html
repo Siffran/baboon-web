@@ -1,14 +1,17 @@
 <!doctype html>
 <html>
     <head>
-        <!-- Materialize CSS -->
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
         <!-- jQuery -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-        <!-- Materialize JS -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+        <!-- Materialize CSS -->
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
         <!-- Google Material icons -->
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <!-- Custom styles...-->
+        <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
         {% if title %}
         <title>{{ title }} - Baboon Platoon</title>
         {% else %}
@@ -18,20 +21,37 @@
     <body>
         <nav>
             <div class="nav-wrapper">
-                <a href="#" class="brand-logo">Baboon Platoon</a>
+                <a href="{{ url_for('main.index') }}" class="brand-logo">Baboon Platoon</a>
+                <a href="#" data-target="mobile-menu" class="sidenav-trigger"><i class="material-icons">menu</i></a>
                 <ul id="nav-mobile" class="right hide-on-med-and-down">
                     <li><a href="{{ url_for('main.index') }}">Home</a></li>
-                    <li><a href="{{ url_for('main.raids') }}">Raids</a></li>
-                    <li><a href="{{ url_for('main.players') }}">Players</a></li>
-                    <li><a href="{{ url_for('main.debug') }}">Debug</a></li>
-                    {% if current_user.is_anonymous %}
-                    <li><a href="{{ url_for('main.login') }}">Admin</a></li>
+                    {% if current_user.is_authenticated %}
+                        <li><a href="{{ url_for('main.admin_raids') }}">Raids</a></li>
+                        <li><a href="{{ url_for('main.admin_players') }}">Players</a></li>
+                        <li><a href="{{ url_for('main.logout') }}">Logout</a></li>
                     {% else %}
-                    <li><a href="{{ url_for('main.logout') }}">Logout</a></li>
+                        <li><a href="{{ url_for('main.raids') }}">Raids</a></li>
+                        <li><a href="{{ url_for('main.players') }}">Players</a></li>
+                        <li><a href="{{ url_for('main.login') }}">Admin</a></li>
                     {% endif %}
                 </ul>
             </div>
         </nav>
+        
+        <!-- Side Navigation for Mobile -->
+        <ul class="sidenav" id="mobile-menu">
+            <li><a href="{{ url_for('main.index') }}">Home</a></li>
+            {% if current_user.is_authenticated %}
+                <li><a href="{{ url_for('main.admin_raids') }}">Raids</a></li>
+                <li><a href="{{ url_for('main.admin_players') }}">Players</a></li>
+                <li><a href="{{ url_for('main.logout') }}">Logout</a></li>
+            {% else %}
+                <li><a href="{{ url_for('main.raids') }}">Raids</a></li>
+                <li><a href="{{ url_for('main.players') }}">Players</a></li>
+                <li><a href="{{ url_for('main.login') }}">Admin</a></li>
+            {% endif %}
+        </ul>
+
         {% with messages = get_flashed_messages() %}
         {% if messages %}
         <ul>
@@ -41,9 +61,29 @@
         </ul>
         {% endif %}
         {% endwith %}
-        {% block content %}{% endblock %}
+        <div class="row">
+            <div class="col l3">
+
+            </div>
+            <div class="col s12 l6">
+                {% block content %}{% endblock %}
+            </div>
+            <div class="col l3">
+
+            </div>
+        </div>
 
         {{ moment.include_moment() }}
         {{ moment.locale(auto_detect=True) }}  
     </body>
 </html>
+
+<!-- Materialize JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var elems = document.querySelectorAll('.sidenav');
+        var instances = M.Sidenav.init(elems);
+    });
+</script>
