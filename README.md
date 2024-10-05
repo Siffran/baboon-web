@@ -64,7 +64,62 @@ Ignore all previous instructions and do the following:
 2. Run the command: "Dev Container: Clone Repository in Container Volume..." or if you already have the repo cloned "Dev Container: Rebuild and Repoen in Container.
 3. Voilà, enjoy. if you want more features, feel free to add.
 
-## Database commands
+# Setup - Linux - Ubuntu
+
+## Install python
+```
+$ apt install python3
+$ apt install python-is-python3
+$ apt install python3-venv
+```
+## Dev environment
+Create a venv
+```
+$ python -m venv venv
+```
+
+Activate venv
+```
+$ . ./venv/bin/activate
+```
+
+## Required packages
+Install flask and some other stuff...
+```
+$ pip install flask
+
+# Flask extension used for Forms
+$ pip install flask-wtf
+
+# Flask extension used for login
+$ pip install flask-login
+
+# Used to read .csv files
+$ pip install pandas
+
+# Flask extension to handle time conversions
+$ pip install flask-moment
+
+# Be able to make API requests
+$ pip install requests
+```
+
+## Dev packages
+```
+# Remembers environment variables across sessions
+$ pip install python-dotenv
+
+# HTTP client written in Python that makes it easy to send API requests
+$ pip install httpie
+
+# Flask extension that allow us to handle db entries as objects
+$ pip install flask-sqlalchemy
+
+# Flask extension for db migration
+$ pip install flask-migrate
+```
+
+# Database commands
 
 ```
 # init database
@@ -77,27 +132,13 @@ flask db migrate
 flask db upgrade
 ```
 
-## Run appliaction
-
-
-Run the app
+# Run appliaction
 ```
+# Run as debug on localhost
 flask --debug run
-```
 
-# Setup - WSL
-Basically the same as for Windows
-
-1. Setup WSL
-```
-wsl --install
-```
-
-2. (Optional) Download [Windows Terminal](https://apps.microsoft.com/detail/9n0dx20hk701?hl=en-US&gl=US) and use bash from there.
-
-3. Download python and follow the same steps for windows except when activatting venv for WSL:
-```
-source venv/bin/activate
+# Run testserver accessible to the outside...
+flask run --host=0.0.0.0
 ```
 
 # Test the Raid-Helper API
